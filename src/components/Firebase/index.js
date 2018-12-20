@@ -1,6 +1,7 @@
 import app from 'firebase/app'
 
 import config from './firebase'
+import FirebaseContext from './context'
 
 class Firebase {
 
@@ -11,3 +12,5 @@ class Firebase {
 }
 
 export default Firebase
+
+export { FirebaseContext }
