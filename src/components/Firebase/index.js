@@ -31,7 +31,7 @@ class Firebase {
     }
 
     doPasswordReset(email) {
-        return this.auth.sendPasswordResetEmail()
+        return this.auth.sendPasswordResetEmail(email)
     }
 
     doPasswordUpdate(password) {
