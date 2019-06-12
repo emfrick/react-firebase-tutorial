@@ -1,20 +1,24 @@
 import React, { Component } from 'react'
+import { observable } from 'mobx'
+import { observer } from 'mobx-react'
 
 import { withFirebase } from '../Firebase'
 import { withAuthorization } from '../Session'
 
+const state = observable({
+    loading: false,
+    users: []
+})
+
+@observer
 class AdminPage extends Component {
+
     constructor(props) {
         super(props)
-
-        this.state = {
-            loading: false,
-            users: []
-        }
     }
 
     componentDidMount() {
-        this.setState({ loading: true })
+        state.loading = true
 
         this.props.firebase.users().on('value', snapshot => {
             const usersObject = snapshot.val()
@@ -24,10 +28,8 @@ class AdminPage extends Component {
                 uid: key
             }))
 
-            this.setState({
-                users: usersList,
-                loading: false
-            })
+            state.users = usersList
+            state.loading = false
         })
     }
 
@@ -36,7 +38,7 @@ class AdminPage extends Component {
     }
 
     render() {
-        const { users, loading } = this.state
+        const { users, loading } = state
 
         return (
             <div>

@@ -1,23 +1,24 @@
 import React from 'react'
+import { observable } from 'mobx'
+import { observer } from 'mobx-react'
 
 import AuthUserContext from './context'
 import { withFirebase } from '../Firebase'
 
-const withAuthentication = Component => {
-    class WithAuthentication extends React.Component {
-        constructor(props) {
-            super(props)
+const state = observable({
+    user: null
+})
 
-            this.state = {
-                user: null
-            }
-        }
+const withAuthentication = Component => {
+
+    @observer
+    class WithAuthentication extends React.Component {
 
         componentDidMount() {
             this.listener = this.props.firebase.auth.onAuthStateChanged(user => {
                 user
-                    ? this.setState({ user })
-                    : this.setState({ user: null })
+                    ? state.user = user
+                    : state.user = null
             })
         }
     
@@ -27,7 +28,7 @@ const withAuthentication = Component => {
 
         render() {
             return (
-                <AuthUserContext.Provider value={this.state.user}>
+                <AuthUserContext.Provider value={state.user}>
                     <Component {...this.props} />
                 </AuthUserContext.Provider>
             )

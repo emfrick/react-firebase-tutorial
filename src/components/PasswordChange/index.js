@@ -1,44 +1,42 @@
 import React, { Component } from 'react'
+import { observable } from 'mobx'
+import { observer } from 'mobx-react'
 
 import { withFirebase } from '../Firebase'
 
-const INITIAL_STATE = {
+const passwordState = observable({
     password: '',
     passwordConfirm: '',
     error: null
-}
+})
 
+@observer
 class PasswordChangeForm extends Component {
     constructor(props) {
         super(props)
 
         this.onSubmit = this.onSubmit.bind(this)
         this.onChange = this.onChange.bind(this)
-
-        this.state = { ...INITIAL_STATE }
     }
 
     onSubmit(evt) {
-        const { password } = this.state
+        const { password } = passwordState
 
         evt.preventDefault()
 
         this.props.firebase
             .doPasswordUpdate(password)
-            .then(() => {
-                this.setState({ ...INITIAL_STATE })
-            })
             .catch(error => {
-                this.setState({ error })
+                passwordState.error = error
             })
     }
 
     onChange(evt) {
-        this.setState({ [evt.target.name]: evt.target.value })
+        passwordState[evt.target.name] = evt.target.value
     }
 
     render() {
-        const { password, passwordConfirm, error } = this.state
+        const { password, passwordConfirm, error } = passwordState
         const isInvalid = password !== passwordConfirm || password === ''
 
         return (
