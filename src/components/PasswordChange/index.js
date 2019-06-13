@@ -3,12 +3,7 @@ import { observable } from 'mobx'
 import { observer } from 'mobx-react'
 
 import { withFirebase } from '../Firebase'
-
-const passwordState = observable({
-    password: '',
-    passwordConfirm: '',
-    error: null
-})
+import { withStore } from '../../store'
 
 @observer
 class PasswordChangeForm extends Component {
@@ -20,29 +15,29 @@ class PasswordChangeForm extends Component {
     }
 
     onSubmit(evt) {
-        const { password } = passwordState
+        const { password, error } = this.props.store
 
         evt.preventDefault()
 
         this.props.firebase
-            .doPasswordUpdate(password)
-            .catch(error => {
-                passwordState.error = error
+            .doPasswordUpdate(password.one)
+            .catch(err => {
+                error = err
             })
     }
 
     onChange(evt) {
-        passwordState[evt.target.name] = evt.target.value
+        this.props.store.password[evt.target.name] = evt.target.value
     }
 
     render() {
-        const { password, passwordConfirm, error } = passwordState
-        const isInvalid = password !== passwordConfirm || password === ''
+        const { password, error } = this.props.store
+        const isInvalid = password.one !== password.two || password.one === ''
 
         return (
             <form onSubmit={this.onSubmit}>
-                <input name="password" value={password} onChange={this.onChange} type="password" placeholder="New Password" />
-                <input name="passwordConfirm" value={passwordConfirm} onChange={this.onChange} type="password" placeholder="Confirm New Password" />
+                <input name="one" value={password.one} onChange={this.onChange} type="password" placeholder="New Password" />
+                <input name="two" value={password.two} onChange={this.onChange} type="password" placeholder="Confirm New Password" />
                 <button disabled={isInvalid} type="submit">Change Password</button>
 
                 { error && <p>{error.message}</p> }
@@ -51,4 +46,4 @@ class PasswordChangeForm extends Component {
     }
 }
 
-export default withFirebase(PasswordChangeForm)
+export default withFirebase(withStore(PasswordChangeForm))

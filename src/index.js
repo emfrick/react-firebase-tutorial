@@ -7,7 +7,21 @@ import Firebase, { FirebaseContext } from './components/Firebase'
 import StoreContext from './store'
 
 const appState = observable({
-    test: 'Hello World'
+    test: 'Hello World',
+    user: null,
+    error: null,
+    admin: {
+        loading: false,
+        users: []
+    },
+    password: {
+        one: '',
+        two: ''
+    },
+    signin: {
+        email: '',
+        password: '',
+    }
 })
 
 ReactDOM.render(

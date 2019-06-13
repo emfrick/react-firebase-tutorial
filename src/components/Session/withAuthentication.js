@@ -1,13 +1,9 @@
 import React from 'react'
-import { observable } from 'mobx'
 import { observer } from 'mobx-react'
 
 import AuthUserContext from './context'
 import { withFirebase } from '../Firebase'
-
-const state = observable({
-    user: null
-})
+import { withStore } from '../../store'
 
 const withAuthentication = Component => {
 
@@ -17,8 +13,8 @@ const withAuthentication = Component => {
         componentDidMount() {
             this.listener = this.props.firebase.auth.onAuthStateChanged(user => {
                 user
-                    ? state.user = user
-                    : state.user = null
+                    ? this.props.store.user = user
+                    : this.props.store.user = null
             })
         }
     
@@ -28,14 +24,14 @@ const withAuthentication = Component => {
 
         render() {
             return (
-                <AuthUserContext.Provider value={state.user}>
+                <AuthUserContext.Provider value={this.props.store.user}>
                     <Component {...this.props} />
                 </AuthUserContext.Provider>
             )
         }
     }
 
-    return withFirebase(WithAuthentication)
+    return withFirebase(withStore(WithAuthentication))
 }
 
 export default withAuthentication

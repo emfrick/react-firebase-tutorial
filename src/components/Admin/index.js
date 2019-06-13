@@ -1,14 +1,9 @@
 import React, { Component } from 'react'
-import { observable } from 'mobx'
 import { observer } from 'mobx-react'
 
 import { withFirebase } from '../Firebase'
 import { withAuthorization } from '../Session'
-
-const state = observable({
-    loading: false,
-    users: []
-})
+import { withStore } from '../../store'
 
 @observer
 class AdminPage extends Component {
@@ -18,7 +13,7 @@ class AdminPage extends Component {
     }
 
     componentDidMount() {
-        state.loading = true
+        this.props.store.admin.loading = true
 
         this.props.firebase.users().on('value', snapshot => {
             const usersObject = snapshot.val()
@@ -28,8 +23,8 @@ class AdminPage extends Component {
                 uid: key
             }))
 
-            state.users = usersList
-            state.loading = false
+            this.props.store.admin.users = usersList
+            this.props.store.admin.loading = false
         })
     }
 
@@ -38,7 +33,7 @@ class AdminPage extends Component {
     }
 
     render() {
-        const { users, loading } = state
+        const { users, loading } = this.props.store.admin
 
         return (
             <div>
@@ -72,4 +67,4 @@ const UserList = ({ users }) => (
 
 const condition = user => !!user
 
-export default withFirebase(withAuthorization(condition)(AdminPage))
+export default withFirebase(withAuthorization(condition)(withStore(AdminPage)))

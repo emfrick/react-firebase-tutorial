@@ -4,6 +4,7 @@ import { observable } from 'mobx'
 import { observer } from 'mobx-react'
 
 import { withFirebase } from '../Firebase'
+import { withStore } from '../../store'
 import * as ROUTES from '../../constants/routes'
 
 const PasswordForgotPage = () => (
@@ -12,11 +13,6 @@ const PasswordForgotPage = () => (
         <PasswordForgotForm />
     </div>
 )
-
-const passwordState = observable({
-    email: '',
-    error: null
-})
 
 @observer
 class PasswordForgotFormBase extends Component {
@@ -28,28 +24,28 @@ class PasswordForgotFormBase extends Component {
     }
 
     onSubmit(evt) {
-        const { email } = passwordState
+        const { user, error } = this.props.store
         
         evt.preventDefault()
 
         this.props.firebase
-            .doPasswordReset(email)
-            .catch(error => {
-                passwordState.error = error
+            .doPasswordReset(user.email)
+            .catch(err => {
+                error = err
             })
     }
 
     onChange(evt) {
-        passwordState[evt.target.name] = evt.target.value
+        this.props.store.user[evt.target.name] = evt.target.value
     }
 
     render() {
-        const { email, error } = passwordState
-        const isInvalid = email === ''
+        const { user, error } = this.props.store
+        const isInvalid = user.email === ''
 
         return (
             <form onSubmit={this.onSubmit}>
-                <input name="email" value={email} onChange={this.onChange} type="text" placeholder="Email Address" />
+                <input name="email" value={user.email} onChange={this.onChange} type="text" placeholder="Email Address" />
                 <button disabled={isInvalid} type="submit">Reset Password</button>
 
                 { error && <p>{error.message}</p> }
@@ -66,6 +62,6 @@ const PasswordForgotLink = () => (
 
 export default PasswordForgotPage
 
-const PasswordForgotForm = withFirebase(PasswordForgotFormBase)
+const PasswordForgotForm = withFirebase(withStore(PasswordForgotFormBase))
 
 export { PasswordForgotForm, PasswordForgotLink }
